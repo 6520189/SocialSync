@@ -1,6 +1,6 @@
 'use client';
 
-const platformsList = ['facebook', 'instagram', 'youtube', 'twitter', 'mastodon'];
+const platformsList = ['facebook', 'instagram', 'youtube', 'twitter', 'mastodon', 'telegram'];
 
 export default function PlatformSelector({ selectedPlatforms, togglePlatform }) {
   const isSelected = (platform) => selectedPlatforms.includes(platform);

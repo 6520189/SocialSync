@@ -10,9 +10,10 @@ import {
   FaMastodon,
   FaCloudUploadAlt,
   FaTimes,
+  FaTelegramPlane,
 } from 'react-icons/fa';
 
-const platformsList = ['facebook', 'instagram', 'youtube', 'twitter', 'mastodon'];
+const platformsList = ['facebook', 'instagram', 'youtube', 'twitter', 'mastodon', 'telegram'];
 
 const platformIcons = {
   facebook: FaFacebookF,
@@ -20,6 +21,7 @@ const platformIcons = {
   youtube: FaYoutube,
   twitter: FaTwitter,
   mastodon: FaMastodon,
+  telegram: FaTelegramPlane,
 };
 
 const platformColors = {
@@ -28,6 +30,7 @@ const platformColors = {
   youtube: '#FF0000',
   twitter: '#1DA1F2',
   mastodon: '#6364FF',
+  telegram: '#229ED9',
 };
 
 export default function PostEditor({

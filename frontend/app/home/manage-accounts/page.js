@@ -26,6 +26,9 @@ export default function ManageAccountPage() {
   // Modal specific state
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [platformToDisconnect, setPlatformToDisconnect] = useState(null);
+  const [showTelegramModal, setShowTelegramModal] = useState(false);
+  const [telegramChatId, setTelegramChatId] = useState('');
+  const [telegramLoading, setTelegramLoading] = useState(false);
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
@@ -181,7 +184,8 @@ export default function ManageAccountPage() {
         } else if (platformName === 'Threads') {
           window.location.href = `http://localhost:8080/auth/threads/login?token=${token}`;
         } else if (platformName === 'Telegram') {
-          window.location.href = `http://localhost:8080/auth/telegram/login?token=${token}`;
+          setShowTelegramModal(true);
+          return;
         } else {
           setStatusMessage(`Connect to ${platformName} is not yet implemented.`);
           setStatusType('error');
@@ -227,6 +231,36 @@ export default function ManageAccountPage() {
   const handleCloseConfirmModal = () => {
     setShowConfirmModal(false);
     setPlatformToDisconnect(null); // Clear the platform being disconnected
+  };
+
+  // Telegram connect handler
+  const handleTelegramConnect = async (e) => {
+    e.preventDefault();
+    if (!telegramChatId) {
+      setStatusMessage('Please enter your Telegram channel username.');
+      setStatusType('error');
+      return;
+    }
+    setTelegramLoading(true);
+    try {
+      await axios.post(
+        'http://localhost:8080/connect/telegram',
+        { chat_id: telegramChatId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setStatusMessage('Telegram channel connected successfully!');
+      setStatusType('success');
+      setShowTelegramModal(false);
+      setTelegramChatId('');
+      fetchAccounts();
+    } catch (err) {
+      setStatusMessage(
+        err?.response?.data?.error || 'Failed to connect Telegram channel.'
+      );
+      setStatusType('error');
+    } finally {
+      setTelegramLoading(false);
+    }
   };
 
   return (
@@ -283,6 +317,42 @@ export default function ManageAccountPage() {
         onConfirm={handleConfirmDisconnect}
         platformName={platformToDisconnect}
       />
+
+      {showTelegramModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-lg font-bold mb-4">Connect Telegram Channel</h2>
+            <form onSubmit={handleTelegramConnect} className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Enter your Telegram <span className="font-semibold">channel username</span> (e.g., <span className="text-blue-600">@socialsyncchannel</span>):
+                <input
+                  type="text"
+                  value={telegramChatId}
+                  onChange={(e) => setTelegramChatId(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  required
+                />
+              </label>
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                  onClick={() => setShowTelegramModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  disabled={telegramLoading}
+                >
+                  {telegramLoading ? 'Connecting...' : 'Connect'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
